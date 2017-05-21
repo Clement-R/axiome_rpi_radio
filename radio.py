@@ -1,5 +1,12 @@
 import pygame
-#from pygame.locals import *
+#import RPi.GPIO as GPIO
+
+# Set the GPIO reading system to BOARD, it uses rPi board numbering
+#GPIO.setmode(GPIO.BCM)
+# Set a GPIO port as an output, with an initial value
+#GPIO.setup(channel, GPIO.OUT, initial=GPIO.HIGH)
+# Set a GPIO port as an entry
+# GPIO.setup(channel, GPIO.IN)
 
 pygame.mixer.init()
 pygame.init()
@@ -71,3 +78,5 @@ while running:
 
     screen.fill((0, 0, 0))
     pygame.display.flip()
+
+    #GPIO.cleanup()
