@@ -23,12 +23,36 @@ void loop() {
   Serial.print("You are reading a value of ");
   Serial.println(readValue2);
   Serial.println("-----------------------");
-  // Serial.print("You are writing a value of ");
-  // Serial.println(writeValue);
 
-  // Blinking led
-  digitalWrite(13, HIGH);   // set the LED on
-  delay(500);
-  digitalWrite(13, LOW);    // set the LED off
-  delay(500);
+  if(readValue == 0) {
+    digitalWrite(11, LOW);
+    digitalWrite(12, LOW);
+    digitalWrite(13, LOW);
+  } else if (readValue > 0 && readValue <= 204) {
+    digitalWrite(11, HIGH);
+    digitalWrite(12, LOW);
+    digitalWrite(13, LOW);
+  } else if (readValue >= 205 && readValue <= 409) {
+    digitalWrite(11, LOW);
+    digitalWrite(12, HIGH);
+    digitalWrite(13, LOW);
+  } else if (readValue >= 410 && readValue <= 614) {
+    digitalWrite(11, HIGH);
+    digitalWrite(12, HIGH);
+    digitalWrite(13, LOW);
+  } else if (readValue >= 615 && readValue <= 819) {
+    digitalWrite(11, LOW);
+    digitalWrite(12, LOW);
+    digitalWrite(13, HIGH);
+  } else if (readValue >= 820) {
+    digitalWrite(11, HIGH);
+    digitalWrite(12, LOW);
+    digitalWrite(13, HIGH);
+  }
+
+  if (readValue2 >= 0 && readValue2 <= 330) {
+    digitalWrite(10, LOW);
+  } else {
+    digitalWrite(10, HIGH);
+  }
 }
