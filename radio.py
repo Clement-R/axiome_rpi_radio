@@ -3,7 +3,7 @@ import RPi.GPIO as GPIO
 
 volume_pot = 0
 main_volume = 0
-toggle_track = False
+toggle_track = True
 
 # Raspberry pi management
 def change_volume(channel):
@@ -19,18 +19,19 @@ def change_track(channel):
         toggle_track = False
     else:
         toggle_track = True
+    print GPIO.input(26)
 
-def ajdust_volume(sound1, sound2):
+def ajdust_volume(sound1):
     global main_volume
     global volume_pot
     
     if main_volume != volume_pot:
         main_volume = volume_pot * 0.2
-        #print main_volume
         sound1.set_max_volume(main_volume)
-        sound2.set_max_volume(main_volume)
+        if not sound1.active:
+            pygame.mixer.music.set_volume(main_volume)
 
-# Set the GPIO reading system to BOARD, it uses rPi board numbering
+# Set the GPIO reading system to BCM, it uses rPi board GPIO numbering
 GPIO.setmode(GPIO.BCM)
 # Set a GPIO port as an output, with an initial value
 GPIO.setup(17, GPIO.OUT, initial=GPIO.LOW)
@@ -53,9 +54,8 @@ GPIO.add_event_callback(26, change_track)
 GPIO.output(17, GPIO.input(4))
 # End of raspberry pi part
 
-pygame.mixer.init()
+pygame.mixer.pre_init(48000, -16, 2, 4096)
 pygame.init()
-
 
 screen = pygame.display.set_mode((100, 100))
 
@@ -90,13 +90,17 @@ class Fader(object):
             elif inst.next_vol < curr_volume:
                 inst.sound.set_volume(curr_volume - inst.increment)
 
-sound1 = Fader("song1.wav")
-sound2 = Fader("song2.wav")
+volume_pot = int("%d%d%d" % (GPIO.input(22), GPIO.input(27), GPIO.input(4)), 2)
+
+sound1 = Fader("brouillage.ogg")
 sound1.sound.play(-1)
-sound1.fade_to(1)
-sound1.active = True
-sound2.sound.play(-1)
-sound2.active = False
+sound1.fade_to(0)
+sound1.active = False
+
+pygame.mixer.music.load("radio.ogg")
+pygame.mixer.music.play(loops=-1)
+
+ajdust_volume(sound1)
 
 running = True
 while running:
@@ -109,22 +113,20 @@ while running:
         if event.type == pygame.QUIT:
             running = False
             GPIO.cleanup()
-
-    if not toggle_track and not sound1.active:
-        sound1.active = True
-        sound2.active = False
-                
-        sound1.fade_to(0)
-        sound2.fade_to(main_volume)
-        
+    
     if toggle_track and sound1.active:
+        print "LEL"
         sound1.active = False
-        sound2.active = True
-                
+        pygame.mixer.music.set_volume(main_volume)
+        sound1.fade_to(0)
+        
+    if not toggle_track and not sound1.active:
+        print "LOL"
+        sound1.active = True
+        pygame.mixer.music.set_volume(0)
         sound1.fade_to(main_volume)
-        sound2.fade_to(0)
 
-    ajdust_volume(sound1, sound2)
+    ajdust_volume(sound1)
     
     # Update faders
     Fader.update()
